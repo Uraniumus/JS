@@ -1,4 +1,4 @@
-const nativeSlice = Array.prototype.slice;
+const nativeSlice = Array.prototype.slice; 
 const nativeMap = Array.prototype.map;
 const nativeReduce = Array.prototype.reduce;
 
