@@ -11,6 +11,9 @@
    createDivWithText('loftschool') // создаст элемент div, поместит в него 'loftschool' и вернет созданный элемент
  */
 function createDivWithText(text) {
+  let div = document.createElement('div');
+  div.innerText = text;
+  return div;
 }
 
 /*
@@ -22,6 +25,8 @@ function createDivWithText(text) {
    prepend(document.querySelector('#one'), document.querySelector('#two')) // добавит элемент переданный первым аргументом в начало элемента переданного вторым аргументом
  */
 function prepend(what, where) {
+  //where.insertAdjacentElement("afterBegin", what);
+  where.prepend(what);
 }
 
 /*
@@ -44,6 +49,14 @@ function prepend(what, where) {
    findAllPSiblings(document.body) // функция должна вернуть массив с элементами div и span т.к. следующим соседом этих элементов является элемент с тегом P
  */
 function findAllPSiblings(where) {
+  let children = where.childNodes;
+  let arr = [];
+  for (var i = 0; i < (children.length-1); i++) {
+    if (children[i].nextSibling.nodeName == 'P') {
+      arr.push(children[i]);
+    }
+  }
+  return arr;
 }
 
 /*
@@ -52,7 +65,7 @@ function findAllPSiblings(where) {
  Функция представленная ниже, перебирает все дочерние узлы типа "элемент" внутри узла переданного в параметре where и возвращает массив из текстового содержимого найденных элементов
  Но похоже, что в код функции закралась ошибка и она работает не так, как описано.
 
- Необходимо найти и исправить ошибку в коде так, чтобы функция работала так, как описано выше.
+ Необходимо найти и исправить ошибку в коде так, чтобы функция соответствовала описанию выше.
 
  Пример:
    Представим, что есть разметка:
@@ -65,11 +78,10 @@ function findAllPSiblings(where) {
  */
 function findError(where) {
     var result = [];
-
     for (var child of where.childNodes) {
+      if (child.innerText != null)
         result.push(child.innerText);
     }
-
     return result;
 }
 
@@ -86,6 +98,9 @@ function findError(where) {
    должно быть преобразовано в <div></div><p></p>
  */
 function deleteTextNodes(where) {
+    for (var child of where.childNodes) {
+      child.textContent = '';
+    }
 }
 
 /*
@@ -101,6 +116,14 @@ function deleteTextNodes(where) {
    должно быть преобразовано в <span><div><b></b></div><p></p></span>
  */
 function deleteTextNodesRecursive(where) {
+    for (var child of where.childNodes) {
+      if (child.nodeType == Node.TEXT_NODE) {
+        child.textContent = '';
+      }
+      if (child.childNodes.length != 0){
+        deleteTextNodesRecursive(child);
+      }
+    }
 }
 
 /*
@@ -124,6 +147,49 @@ function deleteTextNodesRecursive(where) {
    }
  */
 function collectDOMStat(root) {
+  var fullstat = {
+    tags: {}, 
+    classes: {},
+    texts: 0
+  };
+
+    //working with texts
+  var node = root.childNodes[0];
+  while(node != null) {
+    if(node.nodeType == 3) 
+     fullstat.texts += 1;
+
+    if(node.hasChildNodes()) 
+      node = node.firstChild;
+    else {
+      while(node.nextSibling == null && node != root) {
+        node = node.parentNode;
+      }
+      node = node.nextSibling;
+    }
+  }
+
+
+
+  var elems =  root.getElementsByTagName('*')
+  for (var child of elems) {
+    //working with tags
+    if (child.tagName in fullstat.tags)
+      fullstat.tags[child.tagName] += 1;
+    else
+      fullstat.tags[child.tagName] = 1;
+
+    //working with classes
+    if (child.classList.length != 0){
+      for (var className of child.classList)
+        if (className in fullstat.classes)
+          fullstat.classes[className] += 1;
+        else
+          fullstat.classes[className] = 1;
+    }
+
+  }
+  return fullstat;
 }
 
 /*
